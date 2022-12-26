@@ -1,0 +1,16 @@
+.news-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5em;
+}
+
+.categories-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1.5em;
+}
+
+.categories {
+    max-height: 15em;
+    overflow: auto;
+}

@@ -1,0 +1,30 @@
+{
+	"compilerOptions": {
+		"baseUrl": "./",
+		"paths": {
+			"$components": [
+				"src/lib/components"
+			],
+			"$components/*": [
+				"src/lib/components/*"
+			],
+			"$lib": [
+				"src/lib"
+			],
+			"$lib/*": [
+				"src/lib/*"
+			]
+		},
+		"lib": [
+			"ES2020",
+			"DOM",
+			"DOM.Iterable"
+		],
+		"allowSyntheticDefaultImports": true,
+		"typeRoots": [
+			"./src/types",
+			"./node_modules/@types"
+		]
+	},
+	"extends": "./.svelte-kit/tsconfig.json"
+}
