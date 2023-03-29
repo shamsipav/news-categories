@@ -1,18 +1,15 @@
+using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using SpecialityCatalogWebAPI.Classes;
 using SpecialityCatalogWebAPI.Data;
-using System.Text.Json.Serialization;
+using SpecialityCatalogWebAPI.Data.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddAuthorization();
@@ -31,40 +28,50 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-builder.Services.AddSwaggerGen(option =>
+builder.Services.AddSwaggerGen(c =>
 {
-    option.SwaggerDoc("v1", new OpenApiInfo { Title = "Demo API", Version = "v1" });
-    option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    c.SwaggerDoc("v1", new OpenApiInfo
     {
-        In = ParameterLocation.Header,
-        Description = "Укажите корректный токен",
-        Name = "Авторизация",
-        Type = SecuritySchemeType.Http,
-        BearerFormat = "JWT",
-        Scheme = "Bearer"
+        Title = "CatalogAPI",
+        Version = "v1",
+        Description = "Documentation description",
+        Contact = new OpenApiContact()
+        {
+            Name = "Pavel Shamsimukhametov",
+            Email = "shamsipav@gmail.com",
+            Url = new Uri("https://t.me/shamsipav")
+        }
     });
-    option.AddSecurityRequirement(new OpenApiSecurityRequirement
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "JWT Authorization header using the Bearer scheme. \r\n\r\n Enter 'Bearer' [space] and then your token in the text input below.\r\n\r\nExample: \"Bearer 12345abcdef\"",
+    });
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
             new OpenApiSecurityScheme
             {
                 Reference = new OpenApiReference
                 {
-                    Type=ReferenceType.SecurityScheme,
-                    Id="Bearer"
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
                 }
-            },
-            new string[]{}
+            }, new string[] {}
+
         }
     });
 });
 
+builder.Services.AddScoped<IValidator<User>, UserValidator>();
+
 var connectionString = builder.Configuration.GetConnectionString("NewsDbConnection");
 
 builder.Services.AddDbContext<NewsDbContext>(options => options.UseSqlite(connectionString));
-
-builder.Services.AddControllers().AddJsonOptions(x =>
-                x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 
 var app = builder.Build();
 
@@ -79,7 +86,7 @@ app.UseCors(builder => builder
     .AllowAnyMethod()
     .AllowAnyHeader()
     .AllowCredentials()
-    .SetIsOriginAllowed(origin => true));// Allow any origin
+    .SetIsOriginAllowed(origin => true));
 
 app.UseHttpsRedirection();
 
