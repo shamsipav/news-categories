@@ -1,3 +1,11 @@
+export interface IUser {
+    id: number;
+    firstName: string;
+    lastName: string;
+    email: string;
+    lastLoginIp: string;
+    lastLoginDate: string;
+}
 export interface ICategory {
     id: number;
     name: string;
@@ -31,8 +39,6 @@ export interface Padding {
 }
 
 export type ContentType = 'multipart/form-data' | 'application/x-www-form-urlencoded' | 'text/plain' | 'application/json'
-
-export type RESTMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'HEAD'
 
 export interface DefaultAJAXResponse {
     ok: boolean,

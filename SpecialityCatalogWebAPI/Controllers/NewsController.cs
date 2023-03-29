@@ -9,7 +9,6 @@ using SpecialityCatalogWebAPI.Data;
 namespace SpecialityCatalogWebAPI.Controllers
 {
     [Route("api/[controller]")]
-    /*[Authorize]*/
     [ApiController]
     public class NewsController : ControllerBase
     {
@@ -44,6 +43,7 @@ namespace SpecialityCatalogWebAPI.Controllers
             return Ok(news);
         }
 
+        [Authorize]
         [HttpPost]
         public IActionResult Post(News news)
         {
@@ -69,6 +69,7 @@ namespace SpecialityCatalogWebAPI.Controllers
             return Ok(new Response { Ok = true, News = news, Message = "Новость успешно добавлена" });
         }
 
+        [Authorize]
         [HttpPut("{id}")]
         public IActionResult Put(int id, News news)
         {
@@ -103,6 +104,7 @@ namespace SpecialityCatalogWebAPI.Controllers
             return Ok(new Response { Ok = true, News = existNews, Message = "Новость успешно обновлена" });
         }
 
+        [Authorize]
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {

@@ -1,7 +1,6 @@
 ﻿using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using SpecialityCatalogWebAPI.Classes;
@@ -9,7 +8,6 @@ using SpecialityCatalogWebAPI.Data;
 using SpecialityCatalogWebAPI.Utils;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Text;
 
 namespace SpecialityCatalogWebAPI.Controllers
 {

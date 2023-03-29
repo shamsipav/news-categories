@@ -8,7 +8,6 @@ using SpecialityCatalogWebAPI.Data;
 namespace SpecialityCatalogWebAPI.Controllers
 {
     [Route("api/[controller]")]
-    /*[Authorize]*/
     [ApiController]
     public class CategoryController : ControllerBase
     {
@@ -43,6 +42,7 @@ namespace SpecialityCatalogWebAPI.Controllers
             return Ok(category);
         }
 
+        [Authorize]
         [HttpPost]
         public IActionResult Post(Category category)
         {
@@ -52,6 +52,7 @@ namespace SpecialityCatalogWebAPI.Controllers
             return Ok(new Response { Ok = true, Category = category, Message = "Категория успешно добавлена" });
         }
 
+        [Authorize]
         [HttpPut("{id}")]
         public IActionResult Put(int id, Category category)
         {
@@ -69,6 +70,7 @@ namespace SpecialityCatalogWebAPI.Controllers
             return Ok(new Response { Ok = true, Category = existCategory, Message = "Категория успешно обновлена" });
         }
 
+        [Authorize]
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {

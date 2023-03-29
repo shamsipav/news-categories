@@ -6,6 +6,7 @@ using Microsoft.OpenApi.Models;
 using SpecialityCatalogWebAPI.Classes;
 using SpecialityCatalogWebAPI.Data;
 using SpecialityCatalogWebAPI.Data.Validators;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -72,6 +73,9 @@ builder.Services.AddScoped<IValidator<User>, UserValidator>();
 var connectionString = builder.Configuration.GetConnectionString("NewsDbConnection");
 
 builder.Services.AddDbContext<NewsDbContext>(options => options.UseSqlite(connectionString));
+
+builder.Services.AddControllers().AddJsonOptions(x =>
+                x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 
 var app = builder.Build();
 

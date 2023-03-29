@@ -83,8 +83,6 @@ export const sendWindowAJAX = (
             finalData.news = newsObject
         }
 
-        console.log(finalData)
-
         if (options.csrfToken) finalData.csrf = options.csrfToken
     }
     else if (options.data && options.data instanceof FormData) {
@@ -101,8 +99,6 @@ export const sendWindowAJAX = (
         dataType: 'json',
         processData: options.contentType === 'multipart/form-data' ? false : true
     })
-
-    console.log(request)
 
     request.done((res) => {
         if (res.ok === true) {

@@ -66,7 +66,7 @@
         </div>
         <div class="mb-3">
             <label for="text" class="form-label">Текст новости</label>
-            <textarea type="text" name="text" class="form-control" id="text" cols="30" rows="5" required />
+            <textarea name="text" class="form-control" id="text" cols="30" rows="5" required />
         </div>
         <div class="mb-3">
             <div>

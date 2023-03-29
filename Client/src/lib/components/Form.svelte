@@ -80,7 +80,7 @@
                 </div>
             { :else }
                 <div transition:blur|local={{ duration: 200 }} class="alert alert-danger mb-0" role="alert">
-                    Произошла ошибка{ errorFinalText ? `: ${errorFinalText}` : '' }
+                    Произошла ошибка { errorFinalText ? `: ${errorFinalText}` : '' }
                 </div>
             {/if}
         </div>
