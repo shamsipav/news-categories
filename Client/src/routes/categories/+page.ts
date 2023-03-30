@@ -1,6 +1,5 @@
 import { API_URL } from '$lib/consts'
 
-/** @type {import('./$types').PageLoad} */
 export async function load({ fetch, parent }) {
     try {
         const response = await fetch(`${API_URL}/category`)
