@@ -1,12 +1,14 @@
+import { API_URL } from '$lib/consts'
+
 /** @type {import('./$types').PageLoad} */
-export async function load({ fetch }) {
-    let news = null
+export async function load({ fetch, parent }) {
     try {
-        const response = await fetch('https://localhost:7220/api/news')
-        news = await response.json()
+        const response = await fetch(`${API_URL}/news`)
+        const news = await response.json()
+        const { user } = await parent()
+
+        return { news, user }
     } catch (e) {
         console.log(e)
     }
-
-    return { news }
 }

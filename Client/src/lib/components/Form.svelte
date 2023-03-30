@@ -1,90 +1,137 @@
 <script lang="ts">
-    import { sendWindowAJAX, redirect as redirectTo, transformFormData } from '$lib/utilities'
+    import axios, { type AxiosResponse } from 'axios'
     import { createEventDispatcher } from 'svelte'
     import { blur } from 'svelte/transition'
-    import type { RESTMethod, ContentType } from '$lib/types'
+    import type { RESTMethod } from '$lib/types'
+    import { getCookie, redirect, setCookie } from '$lib/utils'
 
     export let id: string = undefined
     export let className = ''
     export let action = ''
-    export let checkOk = true
     export let reset = true
     export let method: RESTMethod = 'GET'
-    export let alerts = true
-    export let redirect: string = undefined
-    export let successText: string = undefined
-    export let errorText: string = undefined
-    export let content: ContentType = 'application/x-www-form-urlencoded'
+    export let redirectTo: string = undefined
+    export let autocomplete = false
+    export let extended = false
 
     let submitted = false
-    let success = false
-    let successFinalText = ''
-    let errorFinalText = ''
+    let successMessage = ''
+    let errorMessage = ''
+
     const dispatch = createEventDispatcher()
 
-    const handleSubmit = (event: Event) => {
-        const form = event.target as HTMLFormElement
-        const formData = new FormData(form)
+    const handleSubmit = async (event) => {
+        const actionUrl = event.target.action
 
-        const requestOptions = {
-            method,
-            data: formData,
-            contentType: content
+        // Костыль для ответов AuthController
+        const route = actionUrl.split('/').slice(-1)[0]
+        const controller = actionUrl.split('/').slice(-2)[0]
+
+        const formData = new FormData(event.target)
+        const dataObject: any = {}
+        formData.forEach((value, key) => dataObject[key] = value)
+
+        const config =
+        {
+            headers: {
+                'Authorization': `Bearer ${getCookie('token')}`
+            }
         }
 
-        sendWindowAJAX(
-            action,
-            requestOptions,
-            (res) => {
-                if (checkOk) {
-                    if (res.ok === true) {
-                        submitted = true
-                        success = true
-                        successFinalText = res.message || successText || 'Форма успешно отправлена'
-                        dispatch('success', res)
-                        if (redirect) redirectTo(redirect)
+
+        try {
+            let response: AxiosResponse
+
+            if (method == 'POST' || method == 'PUT') {
+                if (extended) {
+                    const categoriesObject = []
+                    const categoriesNames = []
+                    const categoriesIds = []
+                    Object.keys(dataObject).map((key) => {
+                        if (key.startsWith('category_name')) {
+                            categoriesNames.push(dataObject[key])
+                            delete dataObject[key]
+                        }
+                        if (key.startsWith('category_id')) {
+                            categoriesIds.push(dataObject[key])
+                            delete dataObject[key]
+                        }
+                    })
+
+                    for (let i = 0; i <= categoriesNames.length; i++) {
+                        const name = categoriesNames[i]
+                        const id = categoriesIds[i]
+                        if (id && name) {
+                            categoriesObject[i] = {
+                                id: id,
+                                name: name,
+                                news: []
+                            }
+                        }
                     }
-                    else if (res.ok === false) {
-                        submitted = true
-                        success = false
-                        errorFinalText = res.error || errorText
-                        dispatch('error', { error: res })
-                    }
+
+                    dataObject.categories = categoriesObject
                 }
-                else {
-                    submitted = true
-                    success = true
-                    successFinalText = res.message || successText || 'Форма успешно отправлена'
-                    dispatch('success', res)
-                    if (redirect) redirectTo(redirect)
-                }
-                if (reset) form.reset()
-            },
-            (res) => {
-                submitted = true
-                success = false
-                errorFinalText = res || errorText
-                dispatch('error', { error: res })
+
+                if (method == 'POST')
+                    response = await axios.post(actionUrl, dataObject, config)
+
+                if (method == 'PUT')
+                    response = await axios.put(actionUrl, dataObject, config)
             }
-        )
+
+            if (method == 'DELETE')
+                response = await axios.delete(actionUrl, config)
+
+            if (method == 'GET')
+                response = await axios.get(actionUrl)
+
+            if (reset)
+                event.target.reset()
+
+            if (redirectTo)
+                redirect(redirectTo)
+
+            submitted = true
+            errorMessage = ''
+
+            if (controller === 'auth' && route === 'login') {
+                setCookie('token', response.data, 3, true)
+                successMessage = 'Вход выполнен'
+            } else {
+                successMessage = response.data.message
+            }
+
+            if (controller == 'auth' && route !== 'login') {
+                successMessage = response.data
+            }
+
+            dispatch('success', response.data)
+
+        } catch (error) {
+            submitted = true
+            successMessage = ''
+            errorMessage = error.response.data
+            console.log(`Не удалось выполнить запрос: ${error.response.data}`)
+        }
     }
 </script>
 
-<form {id} class={className} {action} {method} on:submit|preventDefault={handleSubmit}>
+<form {id} class={className} {action} {method} on:submit|preventDefault={handleSubmit} autocomplete={autocomplete ? 'on' : 'off'}>
     <slot />
-    { #if alerts && submitted }
+    {#if submitted}
         <div class="alerts mt-3 mb-3" transition:blur|local={{ duration: 200 }}>
-            { #if success }
+            {#if successMessage}
                 <div transition:blur|local={{ duration: 200 }} class="alert alert-success mb-0" role="alert">
-                    { successFinalText }
+                    {successMessage}
                 </div>
-            { :else }
+            {:else if errorMessage}
                 <div transition:blur|local={{ duration: 200 }} class="alert alert-danger mb-0" role="alert">
-                    Произошла ошибка { errorFinalText ? `: ${errorFinalText}` : '' }
+                    {errorMessage}
                 </div>
             {/if}
         </div>
-    {  /if }
+    {/if}
 </form>
 
 <style>

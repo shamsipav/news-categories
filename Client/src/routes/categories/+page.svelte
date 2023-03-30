@@ -1,8 +1,11 @@
 <script lang="ts">
     import { Modal, Form } from '$components'
-    import type { ICategory, ModalComponent } from '../../lib/types'
+    import { API_URL } from '$lib/consts'
+    import type { ICategory, IUser, ModalComponent } from '../../lib/types'
 
     export let data: any
+
+    let user: IUser = data.user
     
     let categories: ICategory[] = data.categories
 
@@ -11,13 +14,17 @@
     const showNewCategory = (event: CustomEvent<{ message: string, category: ICategory }>) => {
         const newCategory = event.detail.category
         categories = [ ...categories, newCategory ]
-        setTimeout(modal.close, 500)       
+        setTimeout(modal.close, 500)
     }
 </script>
 
 <div class="container">
     <h2 class="mb-4">Категории</h2>
-    <button type="button" class="btn btn-primary mb-3" on:click={modal.open}>Добавить категорию</button>
+    {#if user}
+        <button type="button" class="btn btn-primary mb-3" on:click={modal.open}>Добавить категорию</button>
+    {:else}
+        <p class="lead">Добавлять категории могут только авторизированные пользователи</p>
+    {/if}
     {#if categories}
         <div class="categories-grid">
             {#each categories as category}
@@ -41,12 +48,11 @@
     {/if}
 </div>
 <Modal bind:this={ modal } hasFooter={ false } title="Добавление категории">
-    <Form method="POST" action="https://localhost:7220/api/Category" content="application/json" reset={ false } on:success={ showNewCategory }>
+    <Form method="POST" action="{API_URL}/category" reset={false} on:success={showNewCategory}>
         <div class="mb-3">
             <label for="name" class="form-label">Название</label>
             <input type="text" name="name" class="form-control" id="name" required />
         </div>
-        <input type="text" name="news" hidden />
         <button class="btn btn-primary mb-3 btn-sm">Добавить</button>
     </Form>
 </Modal>
